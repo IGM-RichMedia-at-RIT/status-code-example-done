@@ -26,63 +26,111 @@
     }
   </style>
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
-  <script type="text/babel">
-    //function to handle our xhr response
-    const handleResponse = (xhr) => {
-      //grab the content section
-      const content = document.querySelector("#content");
-      
-      ///parse the response text into a JSON object
-      const obj = JSON.parse(xhr.response);
-      
-      //check the xhr status code and handle accordingly
-      switch(xhr.status) {
-        case 200: //success
+  <script>
+    /*A function for handling our fetch response. Read init and sendFetch first.
+
+    Like sendFetch(), handleResponse() is marked as an async function. This is because we
+    make use of the await keyword within it.
+    */
+    const handleResponse = async (response) => {
+      //Grab the content section from the page
+      const content = document.getElementById('content');
+
+      //Based on the status code we got back from the server, display something.
+      switch(response.status) {
+        case 200: //Success
           content.innerHTML = `<b>Success</b>`;
           break;
-        case 400: //bad request 
+        case 400: //Bad Request
           content.innerHTML = `<b>Bad Request</b>`;
           break;
-        case 404: //not found (requested resource does not exist)
-          content.innerHTML = `<b>Resource Not Found</b>`;
+        case 404: //Not Found
+          content.innerHTML = `<b>Not Found</b>`;
           break;
-        default: //default other errors we are not handling in this example
-          content.innerHTML = `Error code not implemented by client.`;
+        default: //Anything Else
+          content.innerHTML = `<p>Status Code not Implemented By Client</p>`;
           break;
       }
+
+      /*Unlike the Accept Header demo, this demo only supports JSON. Because of that, we don't
+      need to convert our response to text and then parse that as JSON. JSON is so common that
+      the fetch API handles it innately.
+
+      response.json() is an asychronous call that runs on a background thread. This is because
+      some json responses can be tremendously large, and processing them takes time. We don't want
+      to call the content.innerHTML code below until we have processed the response, so we can
+      use the await keyword to await a "fulfilled" promise from response.json().
+      */
+      let resObj = await response.json();
+
+      //Once the response.json() promise is fulfilled we move to this line, which displays the message.
+      content.innerHTML += `<p>${resObj.message}</p>`;
     };
     
-    //function to send ajax
-    const sendAjax = (url) => {
-      //create a new xhr (ajax) request. 
-      //Remember that these are ASYNCHRONOUS
-      const xhr = new XMLHttpRequest();
-      //set the xhr to a GET request to a certain URL
-      xhr.open('GET', url);
-      //Set the accept headers to the desired response mime type
-      //Server does NOT have to support this. It is a gentle request.
-      xhr.setRequestHeader ("Accept", 'application/json');
+    /*A helper function for sending our fetch request. Read init first.
 
-      //When the xhr loads, call handleResponse and pass the xhr object
-      xhr.onload = () => handleResponse(xhr);
+      You will note that sendFetch takes in the url as a parameter. Right before the
+      parameter list there is the "async" keyword. In the last demo (Accept Header) we
+      discussed the fetch API, and how the fetch() function returns a promise. One way
+      we can work with promises is by using the await/async structure which can make our
+      code much cleaner and clearer to read.
 
-      //send our ajax request to the server
-      xhr.send();
+      Functions that run asynchronous code often times return a promise. Normally when
+      we create a promise, we then need to add event handlers to it like .then() (which
+      we did in the last demo). However, this can create a large set of nested function
+      calls especially if we have multiple promises contained within one another.
+      The await/async syntax seeks to elimitate this.
+
+      Let's first look at the line "let response = await fetch(url);". We know the call
+      "fetch(url)" is an asynchronous call that returns a promise. We could store that
+      promise and then say something like promise.then(...). In that .then() we could
+      handle the response we get back from the server.
+
+      The code below is doing almost the exact same thing, but instead of using a callback
+      function passed into the .then() handler, we are instead saying "make a fetch call
+      to the url. (a)WAIT until the fetch has completed, and store the response in the
+      response variable. THEN call handleResponse". Essentially what we are doing is turning
+      the usually non-blocking asychronous call "fetch" into a blocking call. The fetch() is
+      still asynchronous, but we are pausing the code within sendFetch until it completes.
+
+      To be able to use the await keyword in a function, we need to mark that function as
+      being "async", so that the compiler/interpreter knows that the code contained within
+      is async, even though the await makes it look synchronous. Being clear: the below
+      code is functionally identical to the promise.then() code we saw in the Accept Header
+      demo. It simply looks cleaner.
+
+      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await
+    */
+    const sendFetch = async (url) => {
+      //Call fetch, wait til we get a response, and then store that response in the variable.
+      let response = await fetch(url);
+
+      //Call handleResponse with the response we got back from the server.
+      handleResponse(response);
     };
 
-    //initialization function
+    /*init is the starting point of our client side code. Below the function, we
+      have window.onload = init, which means that init will automatically be called
+      when the page loads.
+    */
     const init = () => {
+      //Grab references to all the buttons on the page.
       const successButton = document.querySelector("#success");
       const badRequestButton = document.querySelector("#badRequest");
       const notFoundButton = document.querySelector("#notFound");
-      
-      //functions to call sendAjax for us with the correct parameters
-      const success = () => sendAjax('/success');
-      const badRequest = () => sendAjax('/badRequest');
-      const notFound = () => sendAjax('/notFoundURL');
-      
-      //attach the correct functions to the correct events
+
+      /*As discussed in the Accept Header demo, we want to have our buttons call some
+        code when they are clicked. To do this, we need a function that we can call that
+        doesn't have any parameters. Since sendFetch (the function we want to call) does
+        have parameters. We can make functions with no parameters that call the function
+        with the parameter prefilled.
+      */
+      const success = () => sendFetch('/success');
+      const badRequest = () => sendFetch('/badRequest');
+      const notFound = () => sendFetch('/somethingUnhandled');
+
+      //Once we have the above functions, we can hook them up to the click events of each button.
       successButton.addEventListener('click', success);
       badRequestButton.addEventListener('click', badRequest);
       notFoundButton.addEventListener('click', notFound);

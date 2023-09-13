@@ -24,6 +24,13 @@
       font-size: 2em;
       text-align: center;
     }
+
+    p {
+      max-width: 600px;
+      margin: 0 auto;
+      margin-block-start: 1em;
+      margin-block-end: 1em;
+    }
   </style>
   
   <script>
@@ -143,6 +150,16 @@
 <body>
   <section id="top">
     <h3>Status Code Tests</h3>
+    <hr>
+      <p>Disclaimer: in a real application, you wouldn't be requesting specific status codes from the server.
+        You would instead be making a request like: "give me info about cats" and the server may respond
+        with a 200-Success and info about the cats. Or a 400-BadRequest saying "You haven't specified enough about
+        what you want", or with a 404-NotFound saying "I don't know how to tell you about cats".
+      </p>
+      <p>
+        The following requests are simply placeholders so that we can talk about status codes.
+      </p>
+    <hr>
     <p>
       Go to <b>/success</b> to test a <b>200 Success.</b> 
       <button id="success">Success</button>

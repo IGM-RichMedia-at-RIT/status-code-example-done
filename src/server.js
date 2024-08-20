@@ -1,6 +1,4 @@
 const http = require('http'); // pull in the http server module
-// pull in the query string module
-const query = require('querystring');
 // pull in our html response handler file
 const htmlHandler = require('./htmlResponses.js');
 // pull in our json response handler file

@@ -1,5 +1,4 @@
 const http = require('http'); // pull in the http server module
-const url = require('url'); // pull in the url module
 // pull in the query string module
 const query = require('querystring');
 // pull in our html response handler file
@@ -21,20 +20,21 @@ const urlStruct = {
 // handle HTTP requests. In node the HTTP server will automatically
 // send this function request and pre-filled response objects.
 const onRequest = (request, response) => {
-  // parse the url using the url module
-  // This will let us grab any section of the URL by name
-  const parsedUrl = url.parse(request.url);
+  // parse the URL
+  const protocol = request.connection.encrypted ? 'https' : 'http';
+  const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
   // grab the query parameters (?key=value&key2=value2&etc=etc)
   // and parse them into a reusable object by field name
-  const params = query.parse(parsedUrl.query);
+  // store that in the request as the query
+  request.query = Object.fromEntries(parsedUrl.searchParams);
 
   // check if the path name (the /name part of the url) matches
   // any in our url object. If so call that function. If not, default to index.
   if (urlStruct[parsedUrl.pathname]) {
-    urlStruct[parsedUrl.pathname](request, response, params);
+    urlStruct[parsedUrl.pathname](request, response);
   } else {
-    urlStruct.notFound(request, response, params);
+    urlStruct.notFound(request, response);
   }
 };
 

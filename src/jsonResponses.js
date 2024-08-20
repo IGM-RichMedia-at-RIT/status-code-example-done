@@ -22,14 +22,14 @@ const success = (request, response) => {
 };
 
 // function to show a bad request without the correct parameters
-const badRequest = (request, response, params) => {
+const badRequest = (request, response) => {
   // message to send
   const responseJSON = {
     message: 'This request has the required parameters',
   };
 
   // if the request does not contain a valid=true query parameter
-  if (!params.valid || params.valid !== 'true') {
+  if (!request.query.valid || request.query.valid !== 'true') {
     // set our error message
     responseJSON.message = 'Missing valid query parameter set to true';
     // give the error a consistent id

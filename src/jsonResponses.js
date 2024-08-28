@@ -1,12 +1,16 @@
 // function to send a json object
 const respondJSON = (request, response, status, object) => {
-  // set status code and content type (application/json)
-  response.writeHead(status, { 'Content-Type': 'application/json' });
-  // stringify the object (so it doesn't use references/pointers/etc)
-  // but is instead a flat string object.
-  // Then write it to the response.
-  response.write(JSON.stringify(object));
-  // Send the response to the client
+  //Stringify object
+  const content = JSON.stringify(object);
+
+  //Set headers including type and length
+  response.writeHead(status, { 
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(content, 'utf8'),
+  });
+  
+  //Write content and send back to client
+  response.write(content);
   response.end();
 };
 

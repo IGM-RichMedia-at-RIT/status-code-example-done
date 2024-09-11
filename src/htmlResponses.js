@@ -8,8 +8,11 @@ const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 
 // function to handle the index page
 const getIndex = (request, response) => {
-  // set status code (200 success) and content type
-  response.writeHead(200, { 'Content-Type': 'text/html' });
+  // set status code (200 success), content type, and content length
+  response.writeHead(200, { 
+    'Content-Type': 'text/html',
+    'Content-Length': Buffer.byteLength(index, 'utf8'),
+ });
   // write an HTML string or buffer to the response
   response.write(index);
   // send the response to the client.

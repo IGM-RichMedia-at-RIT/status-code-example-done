@@ -24,7 +24,6 @@ const success = (request, response) => {
   // send our json with a success status code
   respondJSON(request, response, 200, responseJSON);
 };
-
 // function to show a bad request without the correct parameters
 const badRequest = (request, response) => {
   // message to send

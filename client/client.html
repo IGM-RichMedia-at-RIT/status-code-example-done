@@ -135,7 +135,7 @@
       */
       const success = () => sendFetch('/success');
       const badRequest = () => sendFetch('/badRequest');
-      const notFound = () => sendFetch('/somethingUnhandled');
+      const notFound = () => sendFetch('/123');
 
       //Once we have the above functions, we can hook them up to the click events of each button.
       successButton.addEventListener('click', success);
